@@ -1,0 +1,10 @@
+{"question": "How many days per week can employees work remotely?", "doc": "handbook.md", "evidence": "up to three days per week", "answerable": true}
+{"question": "What are the core hours for remote workers?", "doc": "handbook.md", "evidence": "core hours of 10:00 to 15:00", "answerable": true}
+{"question": "How many vacation days carry over?", "doc": "handbook.md", "evidence": "carry over up to a maximum of 10 days", "answerable": true}
+{"question": "How long is parental leave for the primary caregiver?", "doc": "handbook.md", "evidence": "16 weeks fully paid for the primary caregiver", "answerable": true}
+{"question": "How long should passwords be?", "doc": "handbook.md", "evidence": "at least 14 characters", "answerable": true}
+{"question": "Within how many hours must security incidents be reported?", "doc": "handbook.md", "evidence": "within 24 hours", "answerable": true}
+{"question": "What is the daily meal reimbursement limit when traveling?", "doc": "handbook.md", "evidence": "up to 60 dollars per day", "answerable": true}
+{"question": "When must receipts be provided?", "doc": "handbook.md", "evidence": "Receipts are required for any expense above 25 dollars", "answerable": true}
+{"question": "Does the company offer unlimited vacation?", "answerable": false}
+{"question": "What is the CEO's salary?", "answerable": false}

@@ -1,0 +1,25 @@
+# secrets - NEVER commit these
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# dependencies (rebuilt from requirements.txt / package.json)
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# build output + caches
+.next/
+out/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# local data and OS junk
+data/
+*.log
+.DS_Store
+Thumbs.db

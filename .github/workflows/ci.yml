@@ -1,0 +1,40 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_USER: rag, POSTGRES_PASSWORD: rag, POSTGRES_DB: rag }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rag" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://rag:rag@localhost:5432/rag
+      EMBED_PROVIDER: fake
+      LLM_CHAIN: fake:fake
+      JWT_SECRET: ci-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r backend/requirements-dev.txt
+      - run: sudo apt-get install -y postgresql-client && psql "$DATABASE_URL" -f db/init.sql
+      - run: ruff check backend
+        working-directory: .
+      - run: pytest -q
+        working-directory: backend
+      # Retrieval-quality regression gate (offline: fake embeddings). Fails if hit@k drops.
+      - run: python -m eval.run_eval --strategy structure --mode hybrid --min-hit 0.5
+        working-directory: backend
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install && npm run build
+        working-directory: frontend
