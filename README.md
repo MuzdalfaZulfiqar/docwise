@@ -1,4 +1,4 @@
-# RAG Document Assistant
+<!-- # RAG Document Assistant
 
 Upload PDFs/notes, chat with them, get **streamed answers with clickable citations** — private per user,
 quota-limited, cost-tracked, and evaluated.
@@ -64,4 +64,4 @@ quota enforcement, refusal-without-evidence). CI also runs the eval as a hit-rat
 - [ ] Condense follow-up questions into standalone queries before retrieval
 - [ ] OCR for scanned PDFs; PDF viewer jump-to-page (passage modal exists today)
 - [ ] Rate limiting per minute (daily token quota exists), Alembic migrations, structured logging
-- [ ] Deploy: API + worker images → Fly/Render/Railway/ECS; managed Postgres with pgvector (Neon/Supabase/RDS); object storage instead of local volume
+- [ ] Deploy: API + worker images → Fly/Render/Railway/ECS; managed Postgres with pgvector (Neon/Supabase/RDS); object storage instead of local volume -->
