@@ -1,67 +1,66 @@
-<!-- # RAG Document Assistant
+# DocWise
 
-Upload PDFs/notes, chat with them, get **streamed answers with clickable citations** — private per user,
-quota-limited, cost-tracked, and evaluated.
+**Your documents. Your questions. Answers you can verify.**
 
-## Quickstart
+DocWise is an AI-powered document assistant that lets users upload PDFs and notes, ask questions about their contents, and receive streamed answers with clickable citations to supporting passages.
 
-```bash
-cp .env.example .env          # offline mode: set EMBED_PROVIDER=fake and LLM_CHAIN=fake:fake
-docker compose up --build     # db + redis + api (:8000) + worker + frontend (:3000)
-```
-Open http://localhost:3000 → register → upload a file → watch status/progress → ask questions → click `[1]`.
-API docs: http://localhost:8000/docs
+Built with a focus on reliable retrieval, evidence-based responses, privacy, and measurable AI performance.
 
-Without Docker: run Postgres(pgvector)+Redis, `psql -f db/init.sql`, then in `backend/`:
-`pip install -r requirements-dev.txt && uvicorn app.main:app --reload` and `arq app.worker.WorkerSettings`.
+## Features
 
-## Architecture
+- **Document Chat** — Ask natural-language questions about uploaded PDFs and notes.
+- **Streaming Answers** — Receive responses progressively as they are generated.
+- **Clickable Citations** — Trace answers back to relevant passages in source documents.
+- **Hybrid Retrieval** — Combine retrieval methods using Reciprocal Rank Fusion (RRF) to improve search relevance.
+- **Evidence-Based Responses** — Refuse unsupported questions when relevant evidence is unavailable.
+- **Asynchronous Ingestion** — Process documents through parsing, chunking, embedding, and indexing with progress tracking.
+- **Per-User Data Isolation** — Enforce document ownership across access control and retrieval.
+- **Prompt-Injection Defence** — Treat document contents as untrusted input rather than instructions.
+- **Usage & Cost Tracking** — Monitor token consumption, estimated LLM costs, response latency, and model usage.
+- **Quota Enforcement** — Apply daily token limits to control resource consumption.
+- **Evaluation Framework** — Assess retrieval quality, ranking performance, answer faithfulness, and refusal behaviour.
+- **Offline Testing Mode** — Test core workflows using fake embedding and LLM providers without external AI API costs.
 
-```
-Next.js ──(JWT, SSE)──> FastAPI ──> Postgres + pgvector (users, docs, chunks, usage)
-                           │
-                           └─enqueue─> Redis ──> ARQ worker: parse → chunk → embed(cache, batched) → store
-```
+## Engineering Highlights
 
-| Concern | Where |
-|---|---|
-| Isolation | `user_id` on every table; `retrieval.py` filters on it in every query; 404 not 403 for foreign docs |
-| Ingestion + status | `routers/documents.py`, `services/ingest.py`, `worker.py` (status/progress columns, polled by UI) |
-| Chunking (3 strategies) | `services/chunking.py` |
-| Hybrid search (RRF) | `services/retrieval.py` (+ `rerank()` hook) |
-| Hallucination control | `services/prompts.py` (answer-only-from-context, exact refusal string, no-hits ⇒ refuse w/o LLM call) |
-| Prompt-injection defence | doc text escaped + wrapped in `<sources>`, system prompt marks it untrusted |
-| LLM layer | `services/llm.py` (timeouts, retries, fallback chain via `LLM_CHAIN`) |
-| Cost + quotas | `services/cost.py`, `quotas.py`, `usage_log` table, `done` SSE event carries tokens/$/latency |
-| Eval | `backend/eval/` |
-
-### SSE protocol (`POST /chat`)
-`meta {conversation_id}` → `sources [...]` → `token {text}`* → `done {tokens, cost_usd, latency_ms, model}` (or `error`).
+- Retrieval queries scoped to the authenticated user.
+- Server-Sent Events (SSE) for streamed chat responses and source delivery.
+- Background document processing through a Redis-backed job queue.
+- Batched embedding generation with caching.
+- Configurable LLM fallback chains, timeouts, and retries.
+- Evidence-aware prompting to reduce unsupported answers.
+- Automated tests for isolation, quota enforcement, and refusal behaviour.
+- Evaluation workflows for comparing chunking strategies and retrieval configurations.
 
 ## Evaluation
 
-```bash
-cd backend
-python -m eval.run_eval --strategy structure --mode hybrid           # one config
-python -m eval.run_eval --strategy structure --mode hybrid --faithfulness   # + LLM-judge (real LLM)
-python -m eval.run_all                                               # 3 chunkers x 3 retrieval modes
-```
-Results append to `backend/eval/results.md`. **Paste the table here once you have real-embedding numbers:**
+DocWise includes an evaluation framework designed to measure more than whether an answer sounds correct.
 
-| chunking | size/overlap | retrieval | embeddings | chunks | hit@6 | MRR | faithfulness | refusal |
-|---|---|---|---|---|---|---|---|---|
-| _TODO_ | | | | | | | | |
+| Metric | Purpose |
+|---|---|
+| Hit@6 | Measures whether relevant evidence appears in the top six retrieved results. |
+| Mean Reciprocal Rank (MRR) | Measures how highly the first relevant result is ranked. |
+| Faithfulness | Evaluates whether generated answers are supported by retrieved evidence. |
+| Refusal | Assesses behaviour when questions cannot be answered from the available documents. |
 
-Replace the sample `eval/docs` + `dataset.jsonl` with your own real documents (aim for 30–50 questions,
-including ~20% unanswerable ones) — the 10-question sample is only a smoke test.
+Evaluation results are recorded in `backend/eval/results.md`. Real-embedding results and a representative question dataset are needed for meaningful performance claims.
 
-## Tests
-`make test` — chunking invariants, prompt-injection escaping, and integration tests (cross-user isolation,
-quota enforcement, refusal-without-evidence). CI also runs the eval as a hit-rate regression gate.
+## Roadmap
 
-## Roadmap / known gaps
-- [ ] Real reranker (cross-encoder or LLM) behind `rerank()`; report with/without in the table
-- [ ] Condense follow-up questions into standalone queries before retrieval
-- [ ] OCR for scanned PDFs; PDF viewer jump-to-page (passage modal exists today)
-- [ ] Rate limiting per minute (daily token quota exists), Alembic migrations, structured logging
-- [ ] Deploy: API + worker images → Fly/Render/Railway/ECS; managed Postgres with pgvector (Neon/Supabase/RDS); object storage instead of local volume -->
+- [ ] Integrate and evaluate a production reranker.
+- [ ] Improve follow-up question handling.
+- [ ] Add OCR support for scanned PDFs.
+- [ ] Enable PDF navigation directly to cited pages.
+- [ ] Add request rate limiting and structured logging.
+- [ ] Introduce database migrations.
+- [ ] Move uploaded documents to persistent object storage.
+
+## Author
+
+**Muzdalfa Zulfiqar**
+
+[GitHub](https://github.com/MuzdalfaZulfiqar) · [Portfolio](https://muzdalfa-s-portfolio-i.vercel.app/)
+
+---
+
+*Answers grounded in your documents, with evidence you can inspect.*
