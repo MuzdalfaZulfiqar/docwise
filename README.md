@@ -32,29 +32,6 @@ Built with a focus on reliable retrieval, evidence-based responses, privacy, and
 - Automated tests for isolation, quota enforcement, and refusal behaviour.
 - Evaluation workflows for comparing chunking strategies and retrieval configurations.
 
-## Evaluation
-
-DocWise includes an evaluation framework designed to measure more than whether an answer sounds correct.
-
-| Metric | Purpose |
-|---|---|
-| Hit@6 | Measures whether relevant evidence appears in the top six retrieved results. |
-| Mean Reciprocal Rank (MRR) | Measures how highly the first relevant result is ranked. |
-| Faithfulness | Evaluates whether generated answers are supported by retrieved evidence. |
-| Refusal | Assesses behaviour when questions cannot be answered from the available documents. |
-
-Evaluation results are recorded in `backend/eval/results.md`. Real-embedding results and a representative question dataset are needed for meaningful performance claims.
-
-## Roadmap
-
-- [ ] Integrate and evaluate a production reranker.
-- [ ] Improve follow-up question handling.
-- [ ] Add OCR support for scanned PDFs.
-- [ ] Enable PDF navigation directly to cited pages.
-- [ ] Add request rate limiting and structured logging.
-- [ ] Introduce database migrations.
-- [ ] Move uploaded documents to persistent object storage.
-
 ## Author
 
 **Muzdalfa Zulfiqar**
